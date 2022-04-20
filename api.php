@@ -14,33 +14,67 @@ function sendResponse($status = 200, $body = '', $conten_type = 'text/html')
 
 }
 
-$autenticato = false;
+
 
 class serviceApi
 {
     private $db_connection;
-    
+    private $autenticato = 'chiuso';
 
     
     //metodi
     function __construct()
     {
-       
         $servername = "localhost";
         $username = "Multatore";
         $password = "Picasso69";
         $dbname = "db_multe";
         $dsn = "mysql:host=$servername;dbname=$dbname";
 
-        try
-        {
-            $this->$db_connection = new PDO($dsn,$username,$password);
+        //try
+       // {
+            //$this->$db_connection = new PDO($dsn,$username,$password);
+            $con=mysqli_connect($servername,$username,$password,$dbname);
+            if (mysqli_connect_errno())
+            {
+            echo "Failed to connect to MySQL: " . mysqli_connect_error();
+            }
+            $token = $_POST['key'];
+            $miaQuery = "SELECT Token from operatore where Token = '$token'";
+            $result = mysqli_query($con, $miaQuery);
 
-        }
+            if ($result=mysqli_query($con,$miaQuery))
+            {
+            // Return the number of rows in result set
+            $rowcount=mysqli_num_rows($result);
+            printf("Result set has %d rows.\n",$rowcount);
+            }
+            if($rowcount != 0)
+            {
+                sendResponse(200, json_encode($row['Token']));
+            }
+           // $statement = $this->$db_connection->query($miaQuery, PDO::FETCH_ASSOC);
+
+           // $risultati = []; 
+            /*
+            foreach($result as $row)
+            {
+                $risultati [] = $row;
+            } */
+            //Il risultato della query è una matrice e mi interessa solo il primo valore del primo vettore           
+            //$vettoreTokenOttenuto = $risultati[0];
+            //prendo il valore del token e lo metto in una variabile di supporto 
+            //per poter verificare se il token è prensente nel database
+            //$tokenOttenuto = $vettoreTokenOttenuto['Token'];
+            //se il risultato della query è vuoto allora il token o è scaduto o non è presente nel database
+            $rowcount=mysqli_num_rows($result);
+            //echo $rowcount;
+
+        /*}
         catch(PDOException $e)
         {
             sendResponse(500, $e->getMessage());
-        }
+        }*/
     }
 
     function __destruct()
@@ -72,18 +106,18 @@ class serviceApi
 
     function autenticazione()
     {
-        
         try
         {
             $token = $_POST['key'];
             $miaQuery = "SELECT Token from operatore where Token = '$token'";
+            $result = $connection->query($miaQuery);
             $statement = $this->$db_connection->query($miaQuery, PDO::FETCH_ASSOC);
 
             $risultati = []; 
 
-            foreach($statement as $row)
+            foreach($result as $row)
             {
-                $risultati [] = $row;
+              $risultati [] = $row;
             } 
             //Il risultato della query è una matrice e mi interessa solo il primo valore del primo vettore           
             $vettoreTokenOttenuto = $risultati[0];
@@ -91,6 +125,9 @@ class serviceApi
             //per poter verificare se il token è prensente nel database
             $tokenOttenuto = $vettoreTokenOttenuto['Token'];
             //se il risultato della query è vuoto allora il token o è scaduto o non è presente nel database
+            $rowcount=mysqli_num_rows($result);
+            echo $rowcount;
+            
             if($tokenOttenuto == "")
             {
                 sendResponse(200, json_encode($risultati), "application/json");
@@ -99,11 +136,12 @@ class serviceApi
 
 
             }
-            else{
+            else
+            {
                 echo "Sei stato autenticato";
                 sendResponse(200, json_encode($risultati), "application/json");
-                $this->$autenticato = true;
-                sendResponse(200, json_encode($this->$autenticato), "application/json"); 
+                $this->$autenticato = "aperto";
+                //sendResponse(200, json_encode($this->$autenticato), "application/json"); 
                 //da correggere qua la variabile lucchetto per l'autenticazione  
             }
         }
@@ -111,8 +149,8 @@ class serviceApi
         {
             sendResponse(500, $e->getMessage());
         }
-        return;
     }
+    
     
     
 }
@@ -121,8 +159,9 @@ $api = new serviceApi();
 $nome_funzione = $_POST['function'];
 //router
 
-$api->autenticazione();
+//$api->autenticazione();
 //sendResponse(200, json_encode($this->$autenticato), "application/json");
+//echo $api->autenticato;
 if($autenticato == true)
 {
     switch($nome_funzione)
