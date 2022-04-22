@@ -50,13 +50,13 @@ class serviceApi
 
     function nuovaMulta()
     {
-        echo "Hai chiesto di fare una nuova multa";
+        //echo "Hai chiesto di fare una nuova multa";
+        
     }
 
     function elencaMulte()
     {
        // echo "Hai chiesto di elencare le multe";
-        sendResponse(200, "Hai chiesto di elencare le multe", "application/json");
 
     }
 
@@ -67,11 +67,21 @@ class serviceApi
 
     function richiediSanzioni()
     {
-        //echo "Hai chiesto di elencare le sanzioni";
+        $miaQuery = "SELECT * FROM `tipoeffrazione`";
+        $statement = $this->$db_connection->query($miaQuery, PDO::FETCH_ASSOC);
+
+        $risultati = []; 
+
+        foreach($statement as $row)
+        {
+            $risultati [] = $row;
+        } 
+        sendResponse(200, json_encode($risultati), "application/json");
     }
 
     function autenticazione()
     {
+        global $autenticato;
         
         try
         {
@@ -95,15 +105,15 @@ class serviceApi
             {
                 sendResponse(200, json_encode($risultati), "application/json");
                 sendResponse(200, "Non è stato possibile autenticarti", "application/json");
-                sendResponse(200, json_encode($this->$autenticato), "application/json");
+                sendResponse(200, json_encode($autenticato), "application/json");
 
 
             }
             else{
                 echo "Sei stato autenticato";
                 sendResponse(200, json_encode($risultati), "application/json");
-                $this->$autenticato = true;
-                sendResponse(200, json_encode($this->$autenticato), "application/json"); 
+                $autenticato = true;
+                sendResponse(200, json_encode($autenticato), "application/json"); 
                 //da correggere qua la variabile lucchetto per l'autenticazione  
             }
         }
@@ -122,7 +132,7 @@ $nome_funzione = $_POST['function'];
 //router
 
 $api->autenticazione();
-//sendResponse(200, json_encode($this->$autenticato), "application/json");
+sendResponse(200, json_encode($autenticato), "application/json");
 if($autenticato == true)
 {
     switch($nome_funzione)
@@ -135,13 +145,12 @@ if($autenticato == true)
            $api->elencaMulte();
         break;
 
-    
         case 'annulla_multa':
             $api->elencaMulte();
         break;
     
         case 'sanzioni_disponibili':
-            $api->elencaMulte();
+            $api->richiediSanzioni();
         break;
     
         default: 
