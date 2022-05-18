@@ -73,16 +73,25 @@ class serviceApi
                 //action="query.php";
                 //exec ('/amministratore.php');
                 //include 'amministratore.php';
-                $this->elencamulte();
+                //$this->elencamulte();
+                $autenticato = true;
             }
             else
             {
-                echo"non hai accesso al db";
+                
+                echo '<script type ="text/JavaScript">';  
+                echo 'alert("Non si dispone dei permessi per accedere al DataBase")';  
+                echo '</script>'; 
+                include 'index.php'; 
             }
         }
         else
         {
-            echo "Controllare che le credenziali siano giuste !";
+            
+            echo '<script type ="text/JavaScript">';  
+            echo 'alert("Controllare che le credenzali siano corrette")';  
+            echo '</script>';
+            include 'index.php';  
         }      
     }
 
@@ -127,5 +136,6 @@ class serviceApi
 
 $api = new serviceApi();
 $api->accesso();
+if($autenticato) $api->elencamulte();
 $api->__destruct();
 ?>
