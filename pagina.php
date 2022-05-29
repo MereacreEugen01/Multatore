@@ -139,3 +139,9 @@ $api->accesso();
 if($autenticato) $api->elencamulte();
 $api->__destruct();
 ?>
+<form action="prova.php" method="post" class= "formLogin">
+        
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Pagina Operatori">
+            </div>
+        </form>
